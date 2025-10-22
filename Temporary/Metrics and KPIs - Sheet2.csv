@@ -1,0 +1,58 @@
+Query,Metric,KPI / Threshold,Recommendation,Dimension,Sub-Dimension
+objects_owned_by_admin.sql,PERCENT_OWNED_BY_ADMIN,PERCENT_OWNED_BY_ADMIN should be less than 1%,"Transfer ownership of all admin owned objects, and stop that pattern",Account & Database Management,Objects
+table_size.sql,ACTIVE_GB / TOTAL_GB (as a percentage),N/A,"If percentage > x%:
+* Review population pattern to make sure it's doing delta inserts (truncate and re-insert would increase FS storage)
+* Review retention period of for the tables (subjective recommendation)",Account & Database Management,Objects
+data_loading.sql,AVG_FILE_SIZE_MB,Value should be between 100 and 250 MB,Try to make sure the files being copied sit within 100-250MB range (if possile),Data Ingestion & Transformation,Ingestion
+admin_users.sql,Count of rows,Value should be typically between 1 and 3,Generic: Review whether you really need more than 3,Account Control & Role Management,Role Management
+roles_granted_admin_privileges.sql,N/A,N/A,For information / reference only,Account Control & Role Management,Role Management
+roles_granted_admin_roles.sql,Count of rows,Typically should a small number,Generic: Review whether you really need all of them,Account Control & Role Management,Role Management
+user_info.sql,"DEFAULT_ADMIN_USERS
+INACTIVE_USERS
+NEVER_LOGGED_IN","DEFAULT_ADMIN_USERS should be small
+INACTIVE_USERS should be 0
+NEVER_LOGGED_IN should be 0","DEFAULT_ADMIN_USERS should be small
+INACTIVE_USERS should be 0
+NEVER_LOGGED_IN should be 0",Security,User Management
+user_logging_in_with_password.sql,Count of rows,Count should be zero,"For normal users, use MFA if SSO is not available
+For service users, use key-pair or OAuth",Security,User Management
+monthly credit consumption by warehouse,N/A,N/A,For information / reference only,WH Management,Additional Info
+Warehouse Info,"Count of AUTO_SUSPEND = 0
+Count of AUTO_RESUME = false","Typically, both should be enabled",Generic: review whether they are aligned with customer expectations,WH Management,Additional Info
+most expensive queries,N/A,N/A,For information / reference only,Consumption,Additional Info
+warehouse utilisation (should be consolidated),"PERCENT_XS (bytes scanned during query)
+PERCENT_S
+PERCENT_M 
+PERCENT_L
+PERCENT_XL
+AVG_NBR_BYTES
+AVG_EXE_SECS_*
+WAREHOUSE_SIZE
+p90_wh_used_score, 
+avg_wh_unused_score, 
+xp_dur_score, 
+pct_jobs_spilling_score","* If WAREHOUSE_SIZE =M and PERCENT_M < 90
+* Similarly for all other sizes
+* If utilization is high or low","If objective is to save money:
+* Upgrade of downgrade size as needed
+
+If objective to increase performance:
+* Upsize if majority of workload is in the larger WH size
+* If a small percentage of queries run belong to a larger size, move queries to larger WH but keep current WH as it is
+* If a big percentage of queries run belong to a larger size, upsize WH
+
+MODIFICATION: 
+We should create another query that shows avg bytes scanned per query in each WH. Call this dataset d1
+Join d1 to Andy's query that gets the information by WH
+For each query in each WH, we can calculate the recommended size of that query (XS, S, etc)
+Then, calculate percentage of queries that belong to the same size of WH
+If percentage of queries belonging to different size is < 30% (for example), move queries to larger WH
+If percentage of queries belonging to different size is > 30% (for example), upsize WH",WH Management,Utilization
+Cost per user,N/A,N/A,For information / reference only,Consumption,Additional Info
+Large Query GB Scanned,Percentage of queries above 250GB (threshold can be changed),Percentage should be < 10%,For information / reference only,Consumption,Additional Info
+Queries longer than 30 minutes,Percentage of queries that ran longer than 30 minutes (threshold can be changed),Percentage should be < 10%,For information / reference only,Consumption,Additional Info
+Other Credits,Look at line 28 in doc,,,Consumption,
+Resource Monitors,N/A,N/A,For information / reference only,Account & Database Management,Additional Info
+Query Time Bands,N/A,N/A,For information / reference only,Consumption,Additional Info
+Top 50 long running queries,N/A,N/A,For information / reference only,Consumption,Additional Info
+Query Type Time Bands,N/A,N/A,For information / reference only,Consumption,Additional Info
